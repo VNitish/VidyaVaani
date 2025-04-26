@@ -1,8 +1,10 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import logging
+
 from translation import process_video
 from send_email import send_email_with_attachments
+from summarizer import main as summarize_youtube_video  # Import the summarizer main function
 
 # Initialize app
 app = Flask(__name__)
@@ -20,7 +22,7 @@ def translate_video():
     voice = data['voice']
     email = data['email']
 
-    logger.info(f"Received request: url={video_url}, language={language}, voice={voice}, email={email}")
+    logger.info(f"Received translation request: url={video_url}, language={language}, voice={voice}, email={email}")
 
     try:
         logger.info("Starting video processing...")
@@ -41,6 +43,24 @@ def translate_video():
 
     except Exception as e:
         logger.error(f"Error during translation or email sending: {str(e)}", exc_info=True)
+        return jsonify({"success": False, "message": str(e)})
+
+@app.route('/summarize', methods=['POST'])
+def summarize_video():
+    data = request.get_json()
+    video_url = data['url']
+
+    logger.info(f"Received summarization request: url={video_url}")
+
+    try:
+        logger.info("Starting summarization process...")
+        translated_summary = summarize_youtube_video(video_url)
+        logger.info("Summarization completed.")
+
+        return jsonify({"success": True, "translated_summary": translated_summary})
+
+    except Exception as e:
+        logger.error(f"Error during summarization: {str(e)}", exc_info=True)
         return jsonify({"success": False, "message": str(e)})
 
 if __name__ == "__main__":
