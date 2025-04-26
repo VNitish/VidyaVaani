@@ -14,3 +14,4 @@ flask-cors
 secure-smtplib
 python-dotenv
 requests
+gunicorn
