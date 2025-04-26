@@ -1,0 +1,16 @@
+yt-dlp
+moviepy
+openai-whisper
+googletrans==4.0.0-rc1
+torch
+torchaudio
+transformers
+subprocess.run
+ffmpeg
+pydub
+parler_tts
+Flask
+flask-cors
+secure-smtplib
+python-dotenv
+requests
