@@ -1,0 +1,50 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pycache/
+*.egg-info/
+*.egg
+.pytest_cache/
+*.py[cod]
+*$py.class
+
+# Environments
+.env
+venv/
+env/
+.venv/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Docker
+docker-compose.override.yml
+
+# Logs
+*.log
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# Local data (if any)
+data/
+*.db
+
+# Build and distribution
+dist/
+build/
+*.egg-info/
+
+# Temporary files
+*.tmp
+
+# Secrets and configs (do NOT commit these!)
+config.json
+secrets.json

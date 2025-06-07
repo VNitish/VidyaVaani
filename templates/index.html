@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VideoLingo - AI-Powered YouTube Video Translation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            overflow-x: hidden;
+        }
+        
+        /* Header */
+        .header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+        
+        .nav {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+        }
+        
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .language-selector {
+            background: rgba(102, 126, 234, 0.1);
+            border: 1px solid rgba(102, 126, 234, 0.2);
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 14px;
+            color: #667eea;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .language-selector:hover {
+            background: rgba(102, 126, 234, 0.2);
+        }
+        
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+        
+        .nav-links a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+        
+        .nav-links a:hover {
+            color: #667eea;
+        }
+        
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 120px 0 60px;
+            text-align: center;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            opacity: 0.3;
+        }
+        
+        .hero-content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+        }
+        
+        .hero p {
+            font-size: 1.3rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+        
+        .cta-button {
+            display: inline-block;
+            background: white;
+            color: #667eea;
+            padding: 15px 30px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* Form Section - Compact Horizontal Layout */
+        .form-section {
+            padding: 40px 0;
+            background: white;
+        }
+        
+        .form-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        .form-title {
+            text-align: center;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: #1a202c;
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .form-group label {
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #374151;
+            font-size: 14px;
+        }
+        
+        .form-group input,
+        .form-group select {
+            padding: 10px 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: #fff;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .submit-btn {
+            width: 200px;
+            margin: 0 auto;
+            display: block;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+        
+        .message {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: 600;
+            display: none;
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
+        }
+        
+        /* Features Section */
+        .features {
+            padding: 40px 0 80px;
+            background: #f8fafc;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+        
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 3rem;
+            color: #1a202c;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+        
+        .feature-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+        
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 1rem;
+            fill: #667eea;
+        }
+        
+        .feature-card h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #1a202c;
+        }
+        
+        .feature-card p {
+            color: #666;
+            line-height: 1.6;
+        }
+        
+        /* Footer */
+        .footer {
+            background: #1a202c;
+            color: white;
+            padding: 60px 0 30px;
+        }
+        
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+        
+        .footer-section h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #667eea;
+        }
+        
+        .footer-section p,
+        .footer-section a {
+            color: #cbd5e0;
+            text-decoration: none;
+            line-height: 1.8;
+        }
+        
+        .footer-section a:hover {
+            color: #667eea;
+        }
+        
+        .footer-bottom {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid #374151;
+            color: #9ca3af;
+        }
+        
+        @media (max-width: 1024px) {
+            .form-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .nav-links {
+                display: none;
+            }
+            
+            .language-selector {
+                font-size: 12px;
+                padding: 6px 8px;
+            }
+            
+            .form-container {
+                margin: 0 1rem;
+                padding: 1.5rem;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .form-title {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+<!-- <link type="text/css" rel="stylesheet" href="css/style.css"/> -->
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="nav">
+            <div class="logo">VidyaVaani</div>
+            <div class="nav-right">
+                <select class="language-selector" id="websiteLanguage">
+                    <option value="en">English</option>
+                    <option value="hi">हिंदी</option>
+                    <option value="bn">বাংলা</option>
+                    <option value="ta">தமிழ்</option>
+                </select>
+                <ul class="nav-links">
+                    <li><a href="#contact" data-translate="contact">Contact</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1 data-translate="heroTitle">Transform YouTube Videos into Your Language</h1>
+            <p data-translate="heroSubtitle">AI-powered translation service that converts YouTube videos into Hindi, Bengali, and Tamil with natural voice synthesis. Perfect for educational institutions.</p>
+            <a href="#translate" class="cta-button" data-translate="ctaButton">Start Translating →</a>
+        </div>
+    </section>
+
+    <!-- Form Section -->
+    <section class="form-section" id="translate">
+        <div class="container">
+            <div class="form-container">
+                <h2 class="form-title" data-translate="formTitle">Translate Your Video</h2>
+                <form id="translatorForm">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="youtubeUrl" data-translate="youtubeUrl">YouTube Video URL</label>
+                            <input type="url" id="youtubeUrl" name="youtubeUrl" data-translate="youtubeUrlPlaceholder" placeholder="https://youtube.com/watch?v=..." required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="language" data-translate="targetLanguage">Target Language</label>
+                            <select id="language" name="language" required>
+                                <option value="" data-translate="selectLanguage">Select Language</option>
+                                <option value="hindi" data-translate="hindi">Hindi</option>
+                                <option value="bengali" data-translate="bengali">Bengali</option>
+                                <option value="tamil" data-translate="tamil">Tamil</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="voice" data-translate="voiceType">Voice Type</label>
+                            <select id="voice" name="voice" required>
+                                <option value="" data-translate="selectVoice">Select Voice</option>
+                                <option value="male" data-translate="male">Male</option>
+                                <option value="female" data-translate="female">Female</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="email" data-translate="emailAddress">Email Address</label>
+                            <input type="email" id="email" name="email" data-translate="emailPlaceholder" placeholder="your.email@example.com" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="school" data-translate="schoolName">School Name</label>
+                            <input type="text" id="school" name="school" data-translate="schoolPlaceholder" placeholder="Enter your school name" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="state" data-translate="state">State</label>
+                            <select id="state" name="state" required>
+                                <option value="" data-translate="selectState">Select State</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="district" data-translate="district">District</label>
+                            <select id="district" name="district" required>
+                                <option value="" data-translate="selectDistrict">Select District</option>
+                                <option value="mumbai">Mumbai</option>
+                                <option value="delhi">Delhi</option>
+                                <option value="bangalore">Bangalore</option>
+                                <option value="kolkata">Kolkata</option>
+                                <option value="chennai">Chennai</option>
+                                <option value="hyderabad">Hyderabad</option>
+                                <option value="pune">Pune</option>
+                                <option value="ahmedabad">Ahmedabad</option>
+                            </select>
+                        </div>
+                    </div>
+                        
+
+                    
+                    <button type="submit" class="submit-btn" data-translate="translateButton">Translate Video</button>
+                </form>
+                
+                <div id="message" class="message" data-translate="successMessage">
+                    Your video is being processed! The translated video will be sent to your email shortly.
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="container">
+            <h2 class="section-title">Why Choose VidyaVaani?</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <svg class="feature-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2C13.1046 2 14 2.89543 14 4V8C14 9.10457 13.1046 10 12 10C10.8954 10 10 9.10457 10 8V4C10 2.89543 10.8954 2 12 2Z" fill="currentColor"/>
+                        <path d="M12 12C15.3137 12 18 9.31371 18 6V4C18 2.89543 17.1046 2 16 2C14.8954 2 14 2.89543 14 4V6C14 7.65685 12.6569 9 11 9H10C8.34315 9 7 7.65685 7 6V4C7 2.89543 6.10457 2 5 2C3.89543 2 3 2.89543 3 4V6C3 9.31371 5.68629 12 9 12H12Z" fill="currentColor"/>
+                        <path d="M12 22C12.5523 22 13 21.5523 13 21V19C13 18.4477 12.5523 18 12 18C11.4477 18 11 18.4477 11 19V21C11 21.5523 11.4477 22 12 22Z" fill="currentColor"/>
+                        <path d="M8 18C8.55228 18 9 17.5523 9 17C9 16.4477 8.55228 16 8 16H6C5.44772 16 5 16.4477 5 17C5 17.5523 5.44772 18 6 18H8Z" fill="currentColor"/>
+                        <path d="M19 17C19 17.5523 18.5523 18 18 18H16C15.4477 18 15 17.5523 15 17C15 16.4477 15.4477 16 16 16H18C18.5523 16 19 16.4477 19 17Z" fill="currentColor"/>
+                    </svg>
+                    <h3>Accurate Translation</h3>
+                    <p>Advanced AI ensures contextually accurate translations preserving the original meaning and tone of educational content.</p>
+                </div>
+                <div class="feature-card">
+                    <svg class="feature-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 1C12.5523 1 13 1.44772 13 2V4C13 4.55228 12.5523 5 12 5C11.4477 5 11 4.55228 11 4V2C11 1.44772 11.4477 1 12 1Z" fill="currentColor"/>
+                        <path d="M12 7C14.7614 7 17 9.23858 17 12C17 14.7614 14.7614 17 12 17C9.23858 17 7 14.7614 7 12C7 9.23858 9.23858 7 12 7Z" fill="currentColor"/>
+                        <path d="M12 19C12.5523 19 13 19.4477 13 20V22C13 22.5523 12.5523 23 12 23C11.4477 23 11 22.5523 11 22V20C11 19.4477 11.4477 19 12 19Z" fill="currentColor"/>
+                        <path d="M5 11C4.44772 11 4 11.4477 4 12C4 12.5523 4.44772 13 5 13H7C7.55228 13 8 12.5523 8 12C8 11.4477 7.55228 11 7 11H5Z" fill="currentColor"/>
+                        <path d="M17 11C16.4477 11 16 11.4477 16 12C16 12.5523 16.4477 13 17 13H19C19.5523 13 20 12.5523 20 12C20 11.4477 19.5523 11 19 11H17Z" fill="currentColor"/>
+                    </svg>
+                    <h3>Natural Voice Synthesis</h3>
+                    <p>Choose between male and female voices with natural pronunciation in Hindi, Bengali, and Tamil languages.</p>
+                </div>
+                <div class="feature-card">
+                    <svg class="feature-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M6 2C5.44772 2 5 2.44772 5 3V21C5 21.5523 5.44772 22 6 22H18C18.5523 22 19 21.5523 19 21V8.41421C19 8.149 18.8946 7.89464 18.7071 7.70711L13.2929 2.29289C13.1054 2.10536 12.851 2 12.5858 2H6ZM7 4H12V7C12 7.55228 12.4477 8 13 8H17V20H7V4Z" fill="currentColor"/>
+                        <path d="M9 10C8.44772 10 8 10.4477 8 11C8 11.5523 8.44772 12 9 12H11C11.5523 12 12 11.5523 12 11C12 10.4477 11.5523 10 11 10H9Z" fill="currentColor"/>
+                        <path d="M9 14C8.44772 14 8 14.4477 8 15C8 15.5523 8.44772 16 9 16H15C15.5523 16 16 15.5523 16 15C16 14.4477 15.5523 14 15 14H9Z" fill="currentColor"/>
+                    </svg>
+                    <h3>Education Focused</h3>
+                    <p>Specially designed for schools and educational institutions to make learning accessible across language barriers.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer" id="contact">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>VidyaVaani</h3>
+                <p>Empowering education through AI-powered video translation. Making learning accessible across language barriers for schools and institutions worldwide.</p>
+            </div>
+            <div class="footer-section">
+                <h3>Contact Us</h3>
+                <p>📧 nitish2002.nn@gmail.com</p>
+                <p>🏢 Mumbai, Maharashtra, India</p>
+            </div>
+            <div class="footer-section">
+                <h3>Supported Languages</h3>
+                <p>🇮🇳 Hindi </p>
+                <p>🇮🇳 Bengali </p>
+                <p>🇮🇳 Tamil </p>
+                <p>More languages coming soon!</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 VidyaVaani. Built with ❤️ for education.</p>
+        </div>
+    </footer>
+
+    <script>
+
+        
+
+        // Multi-language content
+        const translations = {
+            en: {
+                // Header
+                contact: "Contact",
+                
+                // Hero Section
+                heroTitle: "Transform YouTube Videos into Your Language",
+                heroSubtitle: "AI-powered translation service that converts YouTube videos into Hindi, Bengali, and Tamil with natural voice synthesis. Perfect for educational institutions.",
+                ctaButton: "Start Translating →",
+                
+                // Form Section
+                formTitle: "Translate Your Video",
+                youtubeUrl: "YouTube Video URL",
+                youtubeUrlPlaceholder: "https://youtube.com/watch?v=...",
+                targetLanguage: "Target Language",
+                selectLanguage: "Select Language",
+                voiceType: "Voice Type",
+                selectVoice: "Select Voice",
+                male: "Male",
+                female: "Female",
+                emailAddress: "Email Address",
+                emailPlaceholder: "your.email@example.com",
+                schoolName: "School Name",
+                schoolPlaceholder: "Enter your school name",
+                district: "District",
+                selectDistrict: "Select District",
+                state: "State",
+                selectState: "Select State",
+                translateButton: "Translate Video",
+                successMessage: "✅ Your video is being processed! The translated video will be sent to your email shortly.",
+                
+                // Features Section
+                featuresTitle: "Why Choose VidyaVaani?",
+                feature1Title: "Accurate Translation",
+                feature1Desc: "Advanced AI ensures contextually accurate translations preserving the original meaning and tone of educational content.",
+                feature2Title: "Natural Voice Synthesis",
+                feature2Desc: "Choose between male and female voices with natural pronunciation in Hindi, Bengali, and Tamil languages.",
+                feature3Title: "Education Focused",
+                feature3Desc: "Specially designed for schools and educational institutions to make learning accessible across language barriers.",
+                
+                // Footer
+                footerDesc: "Empowering education through AI-powered video translation. Making learning accessible across language barriers for schools and institutions worldwide.",
+                contactUs: "Contact Us",
+                supportedLanguages: "Supported Languages",
+                moreLanguages: "More languages coming soon!",
+                footerCopyright: "© 2025 VidyaVaani. Built with ❤️ for education.",
+                
+                // Language options
+                hindi: "Hindi",
+                bengali: "Bengali",
+                tamil: "Tamil"
+            },
+            hi: {
+                // Header
+                contact: "संपर्क",
+                
+                // Hero Section
+                heroTitle: "YouTube वीडियो को अपनी भाषा में बदलें",
+                heroSubtitle: "AI-संचालित अनुवाद सेवा जो YouTube वीडियो को हिंदी, बंगाली और तमिल में प्राकृतिक आवाज संश्लेषण के साथ परिवर्तित करती है। शैक्षणिक संस्थानों के लिए उत्तम।",
+                ctaButton: "अनुवाद शुरू करें →",
+                
+                // Form Section
+                formTitle: "अपना वीडियो अनुवाद करें",
+                youtubeUrl: "YouTube वीडियो URL",
+                youtubeUrlPlaceholder: "https://youtube.com/watch?v=...",
+                targetLanguage: "लक्षित भाषा",
+                selectLanguage: "भाषा चुनें",
+                voiceType: "आवाज का प्रकार",
+                selectVoice: "आवाज चुनें",
+                male: "पुरुष",
+                female: "महिला",
+                emailAddress: "ईमेल पता",
+                emailPlaceholder: "your.email@example.com",
+                schoolName: "स्कूल का नाम",
+                schoolPlaceholder: "अपने स्कूल का नाम दर्ज करें",
+                district: "जिला",
+                selectDistrict: "जिला चुनें",
+                state: "राज्य",
+                selectState: "राज्य चुनें",
+                translateButton: "वीडियो अनुवाद करें",
+                successMessage: "✅ आपका वीडियो प्रोसेस हो रहा है! अनुवादित वीडियो जल्द ही आपके ईमेल पर भेजा जाएगा।",
+                
+                // Features Section
+                featuresTitle: "VidyaVaani क्यों चुनें?",
+                feature1Title: "सटीक अनुवाद",
+                feature1Desc: "उन्नत AI शैक्षणिक सामग्री के मूल अर्थ और स्वर को संरक्षित करते हुए संदर्भात्मक रूप से सटीक अनुवाद सुनिश्चित करता है।",
+                feature2Title: "प्राकृतिक आवाज संश्लेषण",
+                feature2Desc: "हिंदी, बंगाली और तमिल भाषाओं में प्राकृतिक उच्चारण के साथ पुरुष और महिला आवाज़ों के बीच चुनें।",
+                feature3Title: "शिक्षा केंद्रित",
+                feature3Desc: "स्कूलों और शैक्षणिक संस्थानों के लिए विशेष रूप से डिज़ाइन किया गया है ताकि भाषा की बाधाओं के पार सीखना सुलभ हो सके।",
+                
+                // Footer
+                footerDesc: "AI-संचालित वीडियो अनुवाद के माध्यम से शिक्षा को सशक्त बनाना। दुनिया भर के स्कूलों और संस्थानों के लिए भाषा की बाधाओं के पार सीखना सुलभ बनाना।",
+                contactUs: "हमसे संपर्क करें",
+                supportedLanguages: "समर्थित भाषाएं",
+                moreLanguages: "अधिक भाषाएं जल्द आ रही हैं!",
+                footerCopyright: "© 2025 VidyaVaani। शिक्षा के लिए ❤️ से बनाया गया।",
+                
+                // Language options
+                hindi: "हिंदी",
+                bengali: "बंगाली",
+                tamil: "तमिल"
+            },
+            bn: {
+                // Header
+                contact: "যোগাযোগ",
+                
+                // Hero Section
+                heroTitle: "YouTube ভিডিওগুলি আপনার ভাষায় রূপান্তরিত করুন",
+                heroSubtitle: "AI-চালিত অনুবাদ সেবা যা YouTube ভিডিওগুলিকে প্রাকৃতিক কণ্ঠ সংশ্লেষণের সাথে হিন্দি, বাংলা এবং তামিল ভাষায় রূপান্তরিত করে। শিক্ষা প্রতিষ্ঠানের জন্য নিখুঁত।",
+                ctaButton: "অনুবাদ শুরু করুন →",
+                
+                // Form Section
+                formTitle: "আপনার ভিডিও অনুবাদ করুন",
+                youtubeUrl: "YouTube ভিডিও URL",
+                youtubeUrlPlaceholder: "https://youtube.com/watch?v=...",
+                targetLanguage: "লক্ষ্য ভাষা",
+                selectLanguage: "ভাষা নির্বাচন করুন",
+                voiceType: "কণ্ঠের ধরন",
+                selectVoice: "কণ্ঠ নির্বাচন করুন",
+                male: "পুরুষ",
+                female: "মহিলা",
+                emailAddress: "ইমেইল ঠিকানা",
+                emailPlaceholder: "your.email@example.com",
+                schoolName: "স্কুলের নাম",
+                schoolPlaceholder: "আপনার স্কুলের নাম লিখুন",
+                district: "জেলা",
+                selectDistrict: "জেলা নির্বাচন করুন",
+                state: "রাজ্য",
+                selectState: "রাজ্য নির্বাচন করুন",
+                translateButton: "ভিডিও অনুবাদ করুন",
+                successMessage: "✅ আপনার ভিডিও প্রক্রিয়াকরণ হচ্ছে! অনুবাদিত ভিডিও শীঘ্রই আপনার ইমেইলে পাঠানো হবে।",
+                
+                // Features Section
+                featuresTitle: "কেন VidyaVaani বেছে নেবেন?",
+                feature1Title: "সঠিক অনুবাদ",
+                feature1Desc: "উন্নত AI শিক্ষামূলক বিষয়বস্তুর মূল অর্থ এবং স্বর সংরক্ষণ করে প্রসঙ্গিকভাবে সঠিক অনুবাদ নিশ্চিত করে।",
+                feature2Title: "প্রাকৃতিক কণ্ঠ সংশ্লেষণ",
+                feature2Desc: "হিন্দি, বাংলা এবং তামিল ভাষায় প্রাকৃতিক উচ্চারণ সহ পুরুষ এবং মহিলা কণ্ঠের মধ্যে বেছে নিন।",
+                feature3Title: "শিক্ষা কেন্দ্রিক",
+                feature3Desc: "বিশেষভাবে স্কুল এবং শিক্ষা প্রতিষ্ঠানের জন্য ডিজাইন করা হয়েছে যাতে ভাষার বাধা অতিক্রম করে শিক্ষা সুলভ হয়।",
+                
+                // Footer
+                footerDesc: "AI-চালিত ভিডিও অনুবাদের মাধ্যমে শিক্ষাকে ক্ষমতায়ন করা। বিশ্বব্যাপী স্কুল এবং প্রতিষ্ঠানের জন্য ভাষার বাধা অতিক্রম করে শিক্ষা সুলভ করা।",
+                contactUs: "আমাদের সাথে যোগাযোগ করুন",
+                supportedLanguages: "সমর্থিত ভাষাসমূহ",
+                moreLanguages: "আরও ভাষা শীঘ্রই আসছে!",
+                footerCopyright: "© ২০২৫ VidyaVaani। শিক্ষার জন্য ❤️ দিয়ে তৈরি।",
+                
+                // Language options
+                hindi: "হিন্দি",
+                bengali: "বাংলা",
+                tamil: "তামিল"
+            },
+            ta: {
+                // Header
+                contact: "தொடர்பு",
+                
+                // Hero Section
+                heroTitle: "YouTube வீடியோக்களை உங்கள் மொழியில் மாற்றுங்கள்",
+                heroSubtitle: "இயற்கையான குரல் தொகுப்புடன் YouTube வீடியோக்களை இந்தி, வங்காளி மற்றும் தமிழ் மொழிகளில் மாற்றும் AI-இயங்கும் மொழிபெயர்ப்பு சேவை. கல்வி நிறுவனங்களுக்கு ஏற்றது.",
+                ctaButton: "மொழிபெயர்ப்பைத் தொடங்குங்கள் →",
+                
+                // Form Section
+                formTitle: "உங்கள் வீடியோவை மொழிபெயர்க்கவும்",
+                youtubeUrl: "YouTube வீடியோ URL",
+                youtubeUrlPlaceholder: "https://youtube.com/watch?v=...",
+                targetLanguage: "இலக்கு மொழி",
+                selectLanguage: "மொழியைத் தேர்ந்தெடுக்கவும்",
+                voiceType: "குரல் வகை",
+                selectVoice: "குரலைத் தேர்ந்தெடுக்கவும்",
+                male: "ஆண்",
+                female: "பெண்",
+                emailAddress: "மின்னஞ்சல் முகவரி",
+                emailPlaceholder: "your.email@example.com",
+                schoolName: "பள்ளி பெயர்",
+                schoolPlaceholder: "உங்கள் பள்ளியின் பெயரை உள்ளிடவும்",
+                district: "மாவட்டம்",
+                selectDistrict: "மாவட்டத்தைத் தேர்ந்தெடுக்கவும்",
+                state: "மாநிலம்",
+                selectState: "மாநிலத்தைத் தேர்ந்தெடுக்கவும்",
+                translateButton: "வீடியோவை மொழிபெயர்க்கவும்",
+                successMessage: "✅ உங்கள் வீடியோ செயல்படுத்தப்படுகிறது! மொழிபெயர்க்கப்பட்ட வீடியோ விரைவில் உங்கள் மின்னஞ்சலுக்கு அனுப்பப்படும்.",
+                
+                // Features Section
+                featuresTitle: "ஏன் VidyaVaani-ஐ தேர்வு செய்ய வேண்டும்?",
+                feature1Title: "துல்லியமான மொழிபெயர்ப்பு",
+                feature1Desc: "மேம்பட்ட AI கல்வி உள்ளடக்கத்தின் அசல் அர்த்தம் மற்றும் தொனியைப் பாதுகாத்து சூழல் சார்ந்த துல்லியமான மொழிபெயர்ப்பை உறுதி செய்கிறது.",
+                feature2Title: "இயற்கையான குரல் தொகுப்பு",
+                feature2Desc: "இந்தி, வங்காளி மற்றும் தமிழ் மொழிகளில் இயற்கையான உச்சரிப்புடன் ஆண் மற்றும் பெண் குரல்களுக்கு இடையில் தேர்வு செய்யுங்கள்.",
+                feature3Title: "கல்வி மையம்",
+                feature3Desc: "மொழித் தடைகளைக் கடந்து கற்றலை அணுகக்கூடியதாக மாற்ற பள்ளிகள் மற்றும் கல்வி நிறுவனங்களுக்காக சிறப்பாக வடிவமைக்கப்பட்டுள்ளது.",
+                
+                // Footer
+                footerDesc: "AI-இயங்கும் வீடியோ மொழிபெயர்ப்பு மூலம் கல்வியை வலுப்படுத்துதல். உலகளவில் உள்ள பள்ளிகள் மற்றும் நிறுவனங்களுக்கு மொழித் தடைகளைக் கடந்து கற்றலைச் சுலபமாக்குதல்.",
+                contactUs: "எங்களைத் தொடர்பு கொள்ளுங்கள்",
+                supportedLanguages: "ஆதரிக்கப்படும் மொழிகள்",
+                moreLanguages: "மேலும் மொழிகள் விரைவில் வருகின்றன!",
+                footerCopyright: "© 2025 VidyaVaani. கல்விக்காக ❤️ உடன் கட்டமைக்கப்பட்டது.",
+                
+                // Language options
+                hindi: "இந்தி",
+                bengali: "வங்காளி",
+                tamil: "தமிழ்"
+            }
+        };
+
+        // Language switching functionality
+        function updateContent(language) {
+            const lang = translations[language];
+            
+            // Update all elements with data-translate attributes
+            document.querySelectorAll('[data-translate]').forEach(element => {
+                const key = element.getAttribute('data-translate');
+                if (lang[key]) {
+                    if (element.tagName === 'INPUT' && element.type !== 'submit') {
+                        element.placeholder = lang[key];
+                    } else if (element.tagName === 'OPTION') {
+                        element.textContent = lang[key];
+                    } else {
+                        element.textContent = lang[key];
+                    }
+                }
+            });
+        }
+
+        // Language selector functionality
+        const languageSelector = document.getElementById('websiteLanguage');
+        languageSelector.addEventListener('change', function() {
+            const selectedLang = this.value;
+            updateContent(selectedLang);
+            
+            // Store language preference
+            localStorage.setItem('selectedLanguage', selectedLang);
+        });
+
+        // Load saved language on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedLanguage = localStorage.getItem('selectedLanguage') || 'en';
+            languageSelector.value = savedLanguage;
+            updateContent(savedLanguage);
+        });
+
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // State and District functionality
+        const stateDistricts = {
+            "Andaman and Nicobar Islands": ["Nicobar", "North and Middle Andaman", "South Andaman"],
+            "Andhra Pradesh": ["Anantapur", "Chittoor", "East Godavari", "Guntur", "Krishna", "Kurnool", "Nellore", "Prakasam", "Srikakulam", "Visakhapatnam", "Vizianagaram", "West Godavari", "YSR Kadapa"],
+            "Arunachal Pradesh": ["Anjaw", "Changlang", "Dibang Valley", "East Kameng", "East Siang", "Kamle", "Kra Daadi", "Kurung Kumey", "Lepa Rada", "Lohit", "Longding", "Lower Dibang Valley", "Lower Siang", "Lower Subansiri", "Namsai", "Pakke Kessang", "Papum Pare", "Shi Yomi", "Siang", "Tawang", "Tirap", "Upper Siang", "Upper Subansiri", "West Kameng", "West Siang"],
+            "Assam": ["Baksa", "Barpeta", "Biswanath", "Bongaigaon", "Cachar", "Charaideo", "Chirang", "Darrang", "Dhemaji", "Dhubri", "Dibrugarh", "Goalpara", "Golaghat", "Hailakandi", "Hojai", "Jorhat", "Kamrup", "Kamrup Metropolitan", "Karbi Anglong", "Karimganj", "Kokrajhar", "Lakhimpur", "Majuli", "Morigaon", "Nagaon", "Nalbari", "Sivasagar", "Sonitpur", "South Salmara-Mankachar", "Tinsukia", "Udalguri", "West Karbi Anglong"],
+            "Bihar": ["Araria", "Arwal", "Aurangabad", "Banka", "Begusarai", "Bhagalpur", "Bhojpur", "Buxar", "Darbhanga", "East Champaran", "Gaya", "Gopalganj", "Jamui", "Jehanabad", "Kaimur", "Katihar", "Khagaria", "Kishanganj", "Lakhisarai", "Madhepura", "Madhubani", "Munger", "Muzaffarpur", "Nalanda", "Nawada", "Patna", "Purnia", "Rohtas", "Saharsa", "Samastipur", "Saran", "Sheikhpura", "Sheohar", "Sitamarhi", "Siwan", "Supaul", "Vaishali", "West Champaran"],
+            "Chandigarh": ["Chandigarh"],
+            "Chhattisgarh": ["Balod", "Baloda Bazar", "Balrampur", "Bastar", "Bemetara", "Bijapur", "Bilaspur", "Dantewada", "Dhamtari", "Durg", "Gariaband", "Gaurela-Pendra-Marwahi", "Janjgir-Champa", "Jashpur", "Kabirdham", "Kanker", "Kondagaon", "Korba", "Koriya", "Mahasamund", "Mungeli", "Narayanpur", "Raigarh", "Raipur", "Rajnandgaon", "Sukma", "Surajpur", "Surguja"],
+            "Dadra and Nagar Haveli and Daman and Diu": ["Dadra and Nagar Haveli", "Daman", "Diu"],
+            "Delhi": ["Central Delhi", "East Delhi", "New Delhi", "North Delhi", "North East Delhi", "North West Delhi", "Shahdara", "South Delhi", "South East Delhi", "South West Delhi", "West Delhi"],
+            "Goa": ["North Goa", "South Goa"],
+            "Gujarat": ["Ahmedabad", "Amreli", "Anand", "Aravalli", "Banaskantha", "Bharuch", "Bhavnagar", "Botad", "Chhota Udaipur", "Dahod", "Dang", "Devbhoomi Dwarka", "Gandhinagar", "Gir Somnath", "Jamnagar", "Junagadh", "Kheda", "Kutch", "Mahisagar", "Mehsana", "Morbi", "Narmada", "Navsari", "Panchmahal", "Patan", "Porbandar", "Rajkot", "Sabarkantha", "Surat", "Surendranagar", "Tapi", "Vadodara", "Valsad"],
+            "Haryana": ["Ambala", "Bhiwani", "Charkhi Dadri", "Faridabad", "Fatehabad", "Gurugram", "Hisar", "Jhajjar", "Jind", "Kaithal", "Karnal", "Kurukshetra", "Mahendragarh", "Nuh", "Palwal", "Panchkula", "Panipat", "Rewari", "Rohtak", "Sirsa", "Sonipat", "Yamunanagar"],
+            "Himachal Pradesh": ["Bilaspur", "Chamba", "Hamirpur", "Kangra", "Kinnaur", "Kullu", "Lahaul and Spiti", "Mandi", "Shimla", "Sirmaur", "Solan", "Una"],
+            "Jammu and Kashmir": ["Anantnag", "Bandipora", "Baramulla", "Budgam", "Doda", "Ganderbal", "Jammu", "Kathua", "Kishtwar", "Kulgam", "Kupwara", "Poonch", "Pulwama", "Rajouri", "Ramban", "Reasi", "Samba", "Shopian", "Srinagar", "Udhampur"],
+            "Jharkhand": ["Bokaro", "Chatra", "Deoghar", "Dhanbad", "Dumka", "East Singhbhum", "Garhwa", "Giridih", "Godda", "Gumla", "Hazaribagh", "Jamtara", "Khunti", "Koderma", "Latehar", "Lohardaga", "Pakur", "Palamu", "Ramgarh", "Ranchi", "Sahebganj", "Seraikela Kharsawan", "Simdega", "West Singhbhum"],
+            "Karnataka": ["Bagalkot", "Ballari", "Belagavi", "Bengaluru Rural", "Bengaluru Urban", "Bidar", "Chamarajanagar", "Chikkaballapur", "Chikkamagaluru", "Chitradurga", "Dakshina Kannada", "Davanagere", "Dharwad", "Gadag", "Hassan", "Haveri", "Kalaburagi", "Kodagu", "Kolar", "Koppal", "Mandya", "Mysuru", "Raichur", "Ramanagara", "Shivamogga", "Tumakuru", "Udupi", "Uttara Kannada", "Vijayapura", "Yadgir"],
+            "Kerala": ["Alappuzha", "Ernakulam", "Idukki", "Kannur", "Kasaragod", "Kollam", "Kottayam", "Kozhikode", "Malappuram", "Palakkad", "Pathanamthitta", "Thiruvananthapuram", "Thrissur", "Wayanad"],
+            "Ladakh": ["Kargil", "Leh"],
+            "Lakshadweep": ["Lakshadweep"],
+            "Madhya Pradesh": ["Agar Malwa", "Alirajpur", "Anuppur", "Ashoknagar", "Balaghat", "Barwani", "Betul", "Bhind", "Bhopal", "Burhanpur", "Chhatarpur", "Chhindwara", "Damoh", "Datia", "Dewas", "Dhar", "Dindori", "Guna", "Gwalior", "Harda", "Hoshangabad", "Indore", "Jabalpur", "Jhabua", "Katni", "Khandwa", "Khargone", "Mandla", "Mandsaur", "Morena", "Narsinghpur", "Neemuch", "Niwari", "Panna", "Raisen", "Rajgarh", "Ratlam", "Rewa", "Sagar", "Satna", "Sehore", "Seoni", "Shahdol", "Shajapur", "Sheopur", "Shivpuri", "Sidhi", "Singrauli", "Tikamgarh", "Ujjain", "Umaria", "Vidisha"],
+            "Maharashtra": ["Ahmednagar", "Akola", "Amravati", "Aurangabad", "Beed", "Bhandara", "Buldhana", "Chandrapur", "Dhule", "Gadchiroli", "Gondia", "Hingoli", "Jalgaon", "Jalna", "Kolhapur", "Latur", "Mumbai City", "Mumbai Suburban", "Nagpur", "Nanded", "Nandurbar", "Nashik", "Osmanabad", "Palghar", "Parbhani", "Pune", "Raigad", "Ratnagiri", "Sangli", "Satara", "Sindhudurg", "Solapur", "Thane", "Wardha", "Washim", "Yavatmal"],
+            "Manipur": ["Bishnupur", "Chandel", "Churachandpur", "Imphal East", "Imphal West", "Jiribam", "Kakching", "Kamjong", "Kangpokpi", "Noney", "Pherzawl", "Senapati", "Tamenglong", "Tengnoupal", "Thoubal", "Ukhrul"],
+            "Meghalaya": ["East Garo Hills", "East Jaintia Hills", "East Khasi Hills", "North Garo Hills", "Ri Bhoi", "South Garo Hills", "South West Garo Hills"],
+            "Tamil Nadu": [
+                    "Ariyalur", "Chengalpattu", "Chennai", "Coimbatore", "Cuddalore", "Dharmapuri", "Dindigul",
+                    "Erode", "Kallakurichi", "Kancheepuram", "Karur", "Krishnagiri", "Madurai", "Mayiladuthurai",
+                    "Nagapattinam", "Namakkal", "Nilgiris", "Perambalur", "Pudukkottai", "Ramanathapuram",
+                    "Ranipet", "Salem", "Sivaganga", "Tenkasi", "Thanjavur", "Theni", "Thoothukudi", "Tiruchirappalli",
+                    "Tirunelveli", "Tirupathur", "Tiruppur", "Tiruvallur", "Tiruvannamalai", "Tiruvarur", "Vellore",
+                    "Viluppuram", "Virudhunagar"
+                ],
+
+            "West Bengal": [
+                "Alipurduar", "Bankura", "Birbhum", "Cooch Behar", "Dakshin Dinajpur", "Darjeeling", "Hooghly",
+                "Howrah", "Jalpaiguri", "Jhargram", "Kalimpong", "Kolkata", "Malda", "Murshidabad", "Nadia",
+                "North 24 Parganas", "Paschim Bardhaman", "Paschim Medinipur", "Purba Bardhaman",
+                "Purba Medinipur", "Purulia", "South 24 Parganas", "Uttar Dinajpur"
+            ]
+        };
+
+        const stateSelect = document.getElementById('state');
+        const districtSelect = document.getElementById('district');
+
+        // Populate states dropdown
+        for (let state in stateDistricts) {
+            let option = document.createElement('option');
+            option.value = state;
+            option.textContent = state;
+            stateSelect.appendChild(option);
+        }
+
+        stateSelect.addEventListener('change', function() {
+            let selectedState = this.value;
+            districtSelect.innerHTML = '<option value="">Select District</option>';
+            if (selectedState && stateDistricts[selectedState]) {
+                stateDistricts[selectedState].forEach(function(district) {
+                    let option = document.createElement('option');
+                    option.value = district;
+                    option.textContent = district;
+                    districtSelect.appendChild(option);
+                });
+            }
+        });
+
+        const form = document.getElementById('translatorForm');
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const data = {
+                url: document.getElementById('youtubeUrl').value,
+                school: document.getElementById('school').value,
+                district: document.getElementById('district').value,
+                state: document.getElementById('state').value,
+                email: document.getElementById('email').value,
+                language: document.getElementById('language').value,
+                voice: document.getElementById('voice').value
+            };
+
+            fetch('/translate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            })
+            .then(res => res.json())
+            .then(response => {
+                document.getElementById('result').innerText = response.message || 'Done!';
+            })
+            .catch(err => {
+                document.getElementById('result').innerText = 'Error: ' + err;
+            });
+        });
+
+        
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            form.style.display = 'none';
+            message.style.display = 'block';
+            message.scrollIntoView({ behavior: 'smooth' });
+            
+            const formData = new FormData(form);
+            console.log('Form submitted with data:', Object.fromEntries(formData));
+            
+            setTimeout(() => {
+                form.style.display = 'block';
+                message.style.display = 'none';
+                form.reset();
+            }, 5000);
+        });
+
+        // Header scroll effect
+        window.addEventListener('scroll', () => {
+            const header = document.querySelector('.header');
+            if (window.scrollY > 100) {
+                header.style.background = 'rgba(255, 255, 255, 0.98)';
+                header.style.boxShadow = '0 2px 20px rgba(0, 0, 0, 0.1)';
+            } else {
+                header.style.background = 'rgba(255, 255, 255, 0.95)';
+                header.style.boxShadow = 'none';
+            }
+        });
+    </script>
+<!-- <script type="text/javascript" src="js/script.js"></script> -->
+</body>
+</html>
